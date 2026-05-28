@@ -3,7 +3,7 @@ import sys
 import traceback
 from datetime import timedelta
 
-# DON\'T CHANGE THIS !!!
+# DON'T CHANGE THIS !!!
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 try:
@@ -41,8 +41,17 @@ try:
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'facilita-ar-jwt-secret-key-2024')
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 86400)))
 
-    # Habilitar CORS para todas as rotas
-    CORS(app, resources={r"/api/*": {"origins": "*", "supports_credentials": True, "allow_headers": ["Content-Type", "Authorization"]}})
+    # Habilitar CORS - permite frontend em produção e local
+    CORS(app, resources={r"/api/*": {
+        "origins": [
+            "https://facilita-frontend-3.onrender.com",
+            "http://localhost:5173",
+            "http://localhost:3000"
+        ],
+        "supports_credentials": True,
+        "allow_headers": ["Content-Type", "Authorization"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    }})
 
     # Configurar JWT
     jwt = JWTManager(app)
@@ -60,10 +69,8 @@ try:
     # Configuração do banco de dados
     database_url = os.getenv('DATABASE_URL')
     if database_url:
-        # PostgreSQL para produção
         app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     else:
-        # SQLite para desenvolvimento local
         database_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'app.db')
         app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{database_path}"
     
@@ -75,7 +82,6 @@ try:
             db.create_all()
             print("Banco de dados criado com sucesso!")
             
-            # Criar usuário administrador padrão se não existir
             admin_email = 'cassiops7@gmail.com'
             admin_user = Funcionaria.query.filter_by(email=admin_email).first()
             if not admin_user:
@@ -101,10 +107,6 @@ except Exception as e:
     traceback.print_exc()
     app = None
 
-
-
-
-
 @app.route('/api/health')
 def health_check():
     return {'status': 'ok'}, 200
@@ -115,6 +117,3 @@ if __name__ == '__main__':
         app.run(host='0.0.0.0', port=port, debug=False)
     else:
         print("Aplicação Flask não inicializada devido a erros.")
-
-
-
