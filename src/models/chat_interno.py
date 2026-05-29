@@ -1,5 +1,5 @@
 from src.models.user import db
-from datetime import datetime
+from src.models.funcionaria import Funcionaria
 
 class GrupoChat(db.Model):
     __tablename__ = 'grupos_chat'
