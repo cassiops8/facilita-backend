@@ -25,6 +25,7 @@ try:
     from src.models.log_auditoria import LogAuditoria
     from src.models.configuracao_whatsapp_cliente import ConfiguracaoWhatsAppCliente
     from src.models.configuracao_ia_cliente import ConfiguracaoIACliente
+    from src.models.chat_interno import GrupoChat, MembroGrupo, MensagemChat, StatusLeitura
     from src.routes.user import user_bp
     from src.routes.funcionaria import funcionaria_bp
     from src.routes.cliente import cliente_bp
@@ -45,7 +46,7 @@ try:
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'facilita-ar-jwt-secret-key-2024')
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 86400)))
 
-    # Habilitar CORS - permite frontend em produção e local
+    # Habilitar CORS
     CORS(app, resources={r"/api/*": {
         "origins": [
             "https://facilita-frontend-3.onrender.com",
