@@ -33,6 +33,10 @@ try:
     from src.routes.categoria_colaborador import categoria_colaborador_bp
     from src.routes.tipo_cliente import tipo_cliente_bp
     from src.routes.log_auditoria import log_auditoria_bp
+    from src.routes.chat_interno import chat_interno_bp
+    from src.routes.ia_config import ia_config_bp
+    from src.routes.whatsapp_config import whatsapp_config_bp
+    from src.routes.configuracao_sistema import configuracao_sistema_bp
 
     app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
     
@@ -65,6 +69,10 @@ try:
     app.register_blueprint(categoria_colaborador_bp)
     app.register_blueprint(tipo_cliente_bp)
     app.register_blueprint(log_auditoria_bp)
+    app.register_blueprint(chat_interno_bp, url_prefix='/api')
+    app.register_blueprint(ia_config_bp, url_prefix='/api')
+    app.register_blueprint(whatsapp_config_bp, url_prefix='/api')
+    app.register_blueprint(configuracao_sistema_bp, url_prefix='/api')
 
     # Configuração do banco de dados
     database_url = os.getenv('DATABASE_URL')
