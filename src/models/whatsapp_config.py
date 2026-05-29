@@ -5,7 +5,7 @@ class WhatsAppConfig(db.Model):
     __tablename__ = 'whatsapp_configs'
     
     id = db.Column(db.Integer, primary_key=True)
-    cliente_id = db.Column(db.Integer, nullable=True)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
     numero_whatsapp = db.Column(db.String(20), nullable=False)
     nome_exibicao = db.Column(db.String(100), nullable=False)
     token_acesso = db.Column(db.String(500), nullable=True)
@@ -21,7 +21,7 @@ class WhatsAppConfig(db.Model):
             'cliente_id': self.cliente_id,
             'numero_whatsapp': self.numero_whatsapp,
             'nome_exibicao': self.nome_exibicao,
-            'token_acesso': self.token_acesso[:10] + '...' if self.token_acesso else None,
+            'token_acesso': self.token_acesso[:10] + '...' if self.token_acesso else None,  # Mascarar token
             'phone_number_id': self.phone_number_id,
             'webhook_verify_token': self.webhook_verify_token,
             'ativo': self.ativo,
