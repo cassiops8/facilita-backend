@@ -54,14 +54,25 @@ def criar_funcionaria():
             except (TypeError, ValueError):
                 categoria_id = None
         
+        # Senha padrão F1234567 se não for informada (troca obrigatória no 1º acesso)
+        senha_informada = data.get("senha")
+        if not senha_informada or not str(senha_informada).strip():
+            senha_informada = "F1234567"
+            senha_temporaria = True
+        else:
+            # Se um admin já definiu uma senha específica, ainda exigimos troca no 1º acesso
+            senha_temporaria = True
+
         funcionaria = Funcionaria(
             nome=data["nome"],
             email=data["email"],
-            senha=generate_password_hash(data["senha"]),
+            senha=generate_password_hash(senha_informada),
             telefone=data.get("telefone"),
             is_admin=data.get("is_admin", False),
             ativa=data.get("ativa", True),
-            categoria_id=categoria_id
+            categoria_id=categoria_id,
+            foto=data.get("foto"),
+            senha_temporaria=senha_temporaria
         )
         db.session.add(funcionaria)
         db.session.commit()
@@ -111,7 +122,12 @@ def atualizar_funcionaria(funcionaria_id):
         data = request.get_json()
         for key, value in data.items():
             if key == 'senha' and value:
-                setattr(funcionaria, key, generate_password_hash(value))
+                # Admin trocou a senha -> exige nova troca no próximo acesso
+                setattr(funcionaria, 'senha', generate_password_hash(value))
+                funcionaria.senha_temporaria = True
+            elif key == 'senha_temporaria':
+                # Ignorar - controlado pelo backend
+                continue
             elif hasattr(funcionaria, key):
                 setattr(funcionaria, key, value)
         db.session.commit()
