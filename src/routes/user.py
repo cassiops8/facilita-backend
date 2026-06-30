@@ -120,16 +120,21 @@ def change_password():
         data = request.get_json()
         senha_atual = data.get('senha_atual')
         nova_senha = data.get('nova_senha')
-        
-        if not senha_atual or not nova_senha:
-            return jsonify({'error': 'Senha atual e nova senha são obrigatórias'}), 400
-        
-        # Verificar senha atual
-        if not check_password_hash(funcionaria.senha, senha_atual):
-            return jsonify({'error': 'Senha atual incorreta'}), 401
-        
-        # Atualizar senha
+
+        if not nova_senha:
+            return jsonify({'error': 'A nova senha é obrigatória'}), 400
+
+        # Se NÃO for senha temporária, exige a senha atual correta.
+        # Se for primeiro acesso (senha_temporaria=True), não precisa da senha atual.
+        if not funcionaria.senha_temporaria:
+            if not senha_atual:
+                return jsonify({'error': 'A senha atual é obrigatória'}), 400
+            if not check_password_hash(funcionaria.senha, senha_atual):
+                return jsonify({'error': 'Senha atual incorreta'}), 401
+
+        # Atualizar senha e marcar como definitiva
         funcionaria.senha = generate_password_hash(nova_senha)
+        funcionaria.senha_temporaria = False
         db.session.commit()
         
         # Log de auditoria
@@ -152,6 +157,3 @@ def change_password():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-
-
-
