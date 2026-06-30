@@ -90,7 +90,26 @@ try:
         try:
             db.create_all()
             print("Banco de dados criado com sucesso!")
-            
+
+            # Criar categorias básicas se não existirem (IDs 1, 2, 3)
+            categorias_base = [
+                (1, 'Secretária'),
+                (2, 'SDR'),
+                (3, 'Vendedor')
+            ]
+            for cat_id, cat_nome in categorias_base:
+                existe = CategoriaColaborador.query.get(cat_id)
+                if not existe:
+                    nova_cat = CategoriaColaborador(
+                        id=cat_id,
+                        nome=cat_nome,
+                        descricao=f'Categoria {cat_nome}',
+                        ativo=True
+                    )
+                    db.session.add(nova_cat)
+            db.session.commit()
+            print("Categorias básicas verificadas/criadas!")
+
             admin_email = 'cassiops7@gmail.com'
             admin_user = Funcionaria.query.filter_by(email=admin_email).first()
             if not admin_user:
@@ -101,7 +120,8 @@ try:
                     senha=generate_password_hash('F1234567'),
                     telefone='(11) 99999-0000',
                     is_admin=True,
-                    ativa=True
+                    ativa=True,
+                    senha_temporaria=False
                 )
                 db.session.add(admin_user)
                 db.session.commit()
