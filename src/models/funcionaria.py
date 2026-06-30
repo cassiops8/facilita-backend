@@ -12,6 +12,8 @@ class Funcionaria(db.Model):
     ativa = db.Column(db.Boolean, default=True)
     is_admin = db.Column(db.Boolean, default=False)
     categoria_id = db.Column(db.Integer, db.ForeignKey('categorias_colaborador.id'), nullable=True)
+    foto = db.Column(db.Text, nullable=True)  # Foto de perfil em base64
+    senha_temporaria = db.Column(db.Boolean, default=True)  # True = precisa trocar no primeiro acesso
     data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
     ultimo_login = db.Column(db.DateTime, nullable=True)
     
@@ -36,8 +38,9 @@ class Funcionaria(db.Model):
             'ativa': self.ativa,
             'is_admin': self.is_admin,
             'categoria_id': self.categoria_id,
+            'foto': self.foto,
+            'senha_temporaria': self.senha_temporaria,
             'data_criacao': self.data_criacao.isoformat() if self.data_criacao else None,
             'ultimo_login': self.ultimo_login.isoformat() if self.ultimo_login else None,
             'total_clientes': len(self.clientes)
         }
-
